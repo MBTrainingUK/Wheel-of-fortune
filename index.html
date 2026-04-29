@@ -1,0 +1,1086 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Mercedes-Benz Team Randomiser</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+
+    :root {
+      --mb-black:       #000000;
+      --mb-white:       #ffffff;
+      --mb-blue:        #008DFC;   /* Pure Blue – on dark backgrounds */
+      --mb-blue-cta:    #0078D6;   /* Pure Blue – CTA / light backgrounds */
+      --mb-grey-1:      #1a1a1a;   /* near-black surface */
+      --mb-grey-2:      #2a2a2a;   /* card surface */
+      --mb-grey-3:      #3d3d3d;   /* border / divider */
+      --mb-grey-4:      #6b6b6b;   /* secondary text */
+      --mb-grey-5:      #a0a0a0;   /* muted text */
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      background: var(--mb-black);
+      color: var(--mb-white);
+      font-family: 'Inter', sans-serif;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      overflow-x: hidden;
+    }
+
+    /* ── Header ── */
+    header {
+      width: 100%;
+      background: #000000;
+      border-bottom: 2px solid var(--mb-blue);
+      padding: 18px 40px;
+      display: flex;
+      align-items: center;
+      gap: 18px;
+    }
+
+    .mb-logo {
+      width: 54px;
+      height: 54px;
+      flex-shrink: 0;
+    }
+
+    .header-text h1 {
+      font-size: 1.35rem;
+      font-weight: 600;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--mb-white);
+    }
+
+    .header-text p {
+      font-size: 0.72rem;
+      font-weight: 300;
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+      color: var(--mb-grey-5);
+      margin-top: 2px;
+    }
+
+    /* ── Main layout ── */
+    main {
+      display: flex;
+      flex-wrap: nowrap;
+      gap: 32px;
+      justify-content: center;
+      align-items: flex-start;
+      padding: 40px 24px;
+      width: 100%;
+      max-width: 1400px;
+    }
+
+    main.spinning {
+      justify-content: flex-start;
+      padding-left: 40px;
+    }
+
+    /* ── Wheel section ── */
+    .wheel-section {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 28px;
+    }
+
+    .wheel-container {
+      position: relative;
+      width: 576px;
+      height: 576px;
+      transition: width 0.6s ease, height 0.6s ease;
+    }
+
+    #wheel-canvas {
+      border-radius: 50%;
+      display: block;
+      width: 100%;
+      height: 100%;
+    }
+
+    /* Pointer */
+    .pointer {
+      position: absolute;
+      top: 50%;
+      right: -20px;
+      transform: translateY(-50%);
+      width: 0;
+      height: 0;
+      border-top: 20px solid transparent;
+      border-bottom: 20px solid transparent;
+      border-right: 44px solid var(--mb-blue);
+      filter: drop-shadow(0 0 8px rgba(0,141,252,0.7));
+      z-index: 10;
+    }
+
+    /* Centre hub */
+    .hub {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 72px;
+      height: 72px;
+      background: radial-gradient(circle at 40% 35%, #e0e0e0, #555 60%, #222);
+      border-radius: 50%;
+      z-index: 10;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 0 0 4px #333, 0 4px 20px rgba(0,0,0,0.8);
+    }
+
+    .hub svg {
+      width: 44px;
+      height: 44px;
+    }
+
+    /* ── Winner banner ── */
+    .winner-banner {
+      background: var(--mb-grey-1);
+      border: 1px solid var(--mb-blue);
+      border-radius: 4px;
+      padding: 20px 36px;
+      text-align: center;
+      min-width: 320px;
+      box-shadow: 0 0 24px rgba(0,141,252,0.2);
+      transition: all 0.4s ease;
+      opacity: 0;
+      transform: scale(0.95);
+    }
+
+    .winner-banner.show {
+      opacity: 1;
+      transform: scale(1);
+    }
+
+    .winner-banner .label {
+      font-size: 0.7rem;
+      letter-spacing: 0.25em;
+      text-transform: uppercase;
+      color: var(--mb-blue);
+      margin-bottom: 6px;
+    }
+
+    .winner-banner .name {
+      font-size: 2rem;
+      font-weight: 700;
+      color: var(--mb-white);
+      letter-spacing: 0.04em;
+    }
+
+    /* ── Spin button ── */
+    .spin-btn {
+      background: var(--mb-blue);
+      border: none;
+      color: var(--mb-white);
+      font-family: 'Inter', sans-serif;
+      font-size: 0.85rem;
+      font-weight: 600;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      padding: 16px 52px;
+      border-radius: 4px;
+      cursor: pointer;
+      transition: all 0.25s ease;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .spin-btn::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: rgba(255,255,255,0.1);
+      opacity: 0;
+      transition: opacity 0.25s ease;
+    }
+
+    .spin-btn:hover:not(:disabled)::before { opacity: 1; }
+    .spin-btn:hover:not(:disabled) {
+      background: #1a9aff;
+      box-shadow: 0 0 24px rgba(0,141,252,0.4);
+    }
+
+    .spin-btn:active:not(:disabled) { transform: scale(0.98); }
+    .spin-btn:disabled {
+      opacity: 0.35;
+      cursor: not-allowed;
+    }
+
+    /* ── Panel ── */
+    .panel {
+      background: var(--mb-grey-1);
+      border: 1px solid var(--mb-grey-3);
+      border-radius: 4px;
+      padding: 28px;
+      width: 320px;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+      transition: width 0.5s ease, opacity 0.35s ease, padding 0.5s ease;
+      overflow: hidden;
+      flex-shrink: 0;
+    }
+
+    .panel h2 {
+      font-size: 0.75rem;
+      font-weight: 600;
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+      color: var(--mb-grey-5);
+      padding-bottom: 12px;
+      border-bottom: 1px solid var(--mb-grey-3);
+    }
+
+    .add-form {
+      display: flex;
+      gap: 8px;
+    }
+
+    .add-form input {
+      flex: 1;
+      background: var(--mb-black);
+      border: 1px solid var(--mb-grey-3);
+      color: var(--mb-white);
+      font-family: 'Inter', sans-serif;
+      font-size: 0.875rem;
+      padding: 10px 14px;
+      border-radius: 4px;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+
+    .add-form input::placeholder { color: var(--mb-grey-4); }
+    .add-form input:focus { border-color: var(--mb-blue); }
+
+    .add-form button {
+      background: var(--mb-blue);
+      border: none;
+      color: var(--mb-white);
+      font-family: 'Inter', sans-serif;
+      font-size: 1.2rem;
+      font-weight: 700;
+      width: 40px;
+      height: 40px;
+      border-radius: 4px;
+      cursor: pointer;
+      transition: background 0.2s;
+      flex-shrink: 0;
+    }
+
+    .add-form button:hover { background: #1a9aff; }
+    .add-form button:disabled { opacity: 0.35; cursor: not-allowed; }
+
+    .name-count {
+      font-size: 0.72rem;
+      color: var(--mb-grey-4);
+      letter-spacing: 0.1em;
+      margin-top: -12px;
+    }
+
+    .name-count span { color: var(--mb-grey-5); }
+
+    /* Name list */
+    .name-list {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      max-height: 380px;
+      overflow-y: auto;
+      padding-right: 4px;
+    }
+
+    .name-list::-webkit-scrollbar { width: 4px; }
+    .name-list::-webkit-scrollbar-track { background: var(--mb-black); }
+    .name-list::-webkit-scrollbar-thumb { background: var(--mb-grey-3); border-radius: 2px; }
+
+    .name-list li {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: var(--mb-black);
+      border: 1px solid var(--mb-grey-2);
+      border-radius: 4px;
+      padding: 9px 12px;
+      font-size: 0.875rem;
+      transition: border-color 0.2s;
+      animation: slideIn 0.2s ease;
+    }
+
+    @keyframes slideIn {
+      from { opacity: 0; transform: translateX(-8px); }
+      to   { opacity: 1; transform: translateX(0); }
+    }
+
+    .name-list li:hover { border-color: var(--mb-grey-3); }
+
+    .name-list li .dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      margin-right: 10px;
+      flex-shrink: 0;
+    }
+
+    .name-list li .text { flex: 1; }
+
+    .name-list li .remove-btn {
+      background: none;
+      border: none;
+      color: var(--mb-grey-3);
+      font-size: 1rem;
+      cursor: pointer;
+      padding: 0 4px;
+      line-height: 1;
+      transition: color 0.2s;
+    }
+
+    .name-list li .remove-btn:hover { color: var(--mb-grey-5); }
+
+    .empty-msg {
+      color: var(--mb-grey-4);
+      font-size: 0.8rem;
+      text-align: center;
+      padding: 16px 0;
+      letter-spacing: 0.08em;
+    }
+
+    /* Clear button */
+    .clear-btn {
+      background: none;
+      border: 1px solid var(--mb-grey-3);
+      color: var(--mb-grey-4);
+      font-family: 'Inter', sans-serif;
+      font-size: 0.72rem;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      padding: 9px;
+      border-radius: 4px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .clear-btn:hover { border-color: var(--mb-grey-5); color: var(--mb-grey-5); }
+
+    /* ── Confetti ── */
+    .confetti-container {
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      pointer-events: none;
+      z-index: 100;
+      overflow: hidden;
+    }
+
+    .confetti-piece {
+      position: absolute;
+      width: 8px;
+      height: 8px;
+      opacity: 0;
+      animation: confettiFall 3s ease-in forwards;
+    }
+
+    @keyframes confettiFall {
+      0%   { opacity: 1; transform: translateY(-20px) rotate(0deg); }
+      100% { opacity: 0; transform: translateY(100vh) rotate(720deg); }
+    }
+
+    /* ── All done screen ── */
+    .all-done {
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      gap: 16px;
+      padding: 32px;
+      text-align: center;
+    }
+
+    .all-done.show { display: flex; }
+
+    .all-done .star-big svg { width: 80px; height: 80px; opacity: 0.3; }
+
+    .all-done h2 {
+      font-size: 1.5rem;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+    }
+
+    .all-done p {
+      color: var(--mb-grey-5);
+      font-size: 0.85rem;
+      letter-spacing: 0.08em;
+    }
+
+    .restart-btn {
+      background: var(--mb-blue);
+      border: none;
+      color: var(--mb-white);
+      font-family: 'Inter', sans-serif;
+      font-size: 0.8rem;
+      font-weight: 700;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      padding: 14px 40px;
+      border-radius: 4px;
+      cursor: pointer;
+      transition: background 0.2s;
+      margin-top: 8px;
+    }
+
+    .restart-btn:hover { background: #1a9aff; }
+
+    /* Responsive */
+    @media (max-width: 880px) {
+      .wheel-container { width: 340px; height: 340px; }
+      main { gap: 28px; padding: 24px 16px; }
+    }
+
+    @media (max-width: 500px) {
+      .wheel-container { width: 280px; height: 280px; }
+      .panel { width: 100%; }
+    }
+
+    /* ── Spin mode ── */
+    main.spinning .wheel-container {
+      width: 720px;
+      height: 720px;
+    }
+
+    main.spinning .winner-banner {
+      min-width: 480px;
+    }
+
+    main.spinning .panel {
+      width: 0;
+      padding: 0;
+      opacity: 0;
+      pointer-events: none;
+      border-width: 0;
+      gap: 0;
+    }
+
+    /* ── Results panel ── */
+    .results-panel {
+      background: var(--mb-grey-1);
+      border: 1px solid var(--mb-grey-3);
+      border-radius: 4px;
+      width: 0;
+      min-width: 0;
+      padding: 0;
+      overflow: hidden;
+      opacity: 0;
+      flex-shrink: 0;
+      transition: width 0.55s ease, min-width 0.55s ease, opacity 0.4s ease 0.15s, padding 0.55s ease;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      align-self: flex-start;
+    }
+
+    main.spinning .results-panel {
+      width: 220px;
+      min-width: 220px;
+      opacity: 1;
+      padding: 24px 20px;
+    }
+
+    .results-panel h2 {
+      font-size: 0.75rem;
+      font-weight: 600;
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+      color: var(--mb-grey-5);
+      padding-bottom: 12px;
+      border-bottom: 1px solid var(--mb-grey-3);
+      white-space: nowrap;
+    }
+
+    .results-list {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 0;
+      overflow-y: visible;
+    }
+
+    .results-list::-webkit-scrollbar { width: 4px; }
+    .results-list::-webkit-scrollbar-track { background: transparent; }
+    .results-list::-webkit-scrollbar-thumb { background: var(--mb-grey-3); border-radius: 2px; }
+
+    .results-list li {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 9px 0;
+      border-bottom: 1px solid var(--mb-grey-2);
+      animation: slideIn 0.3s ease;
+      white-space: nowrap;
+    }
+
+    .results-list li:last-child { border-bottom: none; }
+
+    .results-list .pos {
+      font-size: 0.65rem;
+      font-weight: 700;
+      letter-spacing: 0.06em;
+      color: var(--mb-blue);
+      width: 20px;
+      flex-shrink: 0;
+      text-align: right;
+    }
+
+    .results-list .res-name {
+      font-size: 0.875rem;
+      color: var(--mb-white);
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .results-empty {
+      color: var(--mb-grey-4);
+      font-size: 0.78rem;
+      letter-spacing: 0.08em;
+      padding: 8px 0;
+    }
+  </style>
+</head>
+<body>
+
+<!-- ── Header ── -->
+<header>
+  <svg class="mb-logo" viewBox="0 0 38 38" xmlns="http://www.w3.org/2000/svg">
+    <path fill="#ffffff" d="M35.4544465,9.4999895c-1.6675854-2.8883456-4.0661211-5.2869461-6.9544707-6.9545288C25.6116245.8778901,22.3351164-.0000113,18.9999602-.0000113s-6.6116643.8779014-9.500013,2.5454718c-2.8883495,1.6675829-5.2868861,4.0661834-6.9544579,6.954529C.8779042,12.3883351.0000007,15.6648388.0000007,18.9999905s.8779036,6.6116553,2.5454887,9.4999991c1.6675717,2.8883438,4.0661088,5.2869456,6.9544579,6.9545142,2.8883495,1.6675832,6.1648567,2.545485,9.500013,2.545485s6.6116643-.8779018,9.5000139-2.545485c2.8883514-1.6675685,5.2868871-4.0661704,6.9544725-6.954516,1.6676402-2.8883456,2.5455542-6.1648474,2.5455542-9.5000009s-.8779834-6.6116553-2.5455542-9.4999973ZM1.8999571,18.9999905c0-3.0017169.7901239-5.9505479,2.290984-8.5499634,1.5007929-2.5995498,3.6594907-4.7581912,6.259044-6.2591026,2.444813-1.4115102,5.19865-2.1943806,8.0147432-2.2824819l-2.1816223,15.5229389L3.9306169,27.082194c-1.331722-2.4829084-2.0306614-5.2591831-2.0306598-8.0822035ZM27.550001,33.8090561c-2.5995542,1.5007927-5.5483874,2.2908612-8.5500426,2.2908612s-5.9504747-.7900685-8.5499741-2.2908612c-2.444813-1.4115093-4.499631-3.4050629-5.984056-5.7997344l14.5340301-5.872124,14.5341123,5.872124c-1.4844378,2.3946733-3.5392558,4.3882251-5.9840697,5.7997344ZM34.0693811,27.0821921l-12.3525704-9.6508126-2.1816059-15.5229372c2.8161461.0881012,5.569986.8709716,8.014798,2.282482,2.5994866,1.5009119,4.7581991,3.6595529,6.2589902,6.2591026,1.5008605,2.5994155,2.2909849,5.5483799,2.2909849,8.5499634,0,2.8230204-.6989524,5.5992951-2.0305968,8.0822017Z"/>
+  </svg>
+  <div class="header-text">
+    <h1>Randomiser</h1>
+    <p>Mercedes-Benz &nbsp;·&nbsp; Icebreaker</p>
+  </div>
+</header>
+
+<!-- ── Confetti layer ── -->
+<div class="confetti-container" id="confetti-container"></div>
+
+<!-- ── Main ── -->
+<main id="main-layout">
+
+  <!-- Results panel (left – visible after first spin) -->
+  <div class="results-panel" id="results-panel">
+    <h2>Called Out</h2>
+    <ol class="results-list" id="results-list">
+      <li class="results-empty" id="results-empty">No one selected yet</li>
+    </ol>
+  </div>
+
+  <!-- Wheel -->
+  <div class="wheel-section">
+    <div class="wheel-container" id="wheel-wrap">
+      <canvas id="wheel-canvas" width="480" height="480"></canvas>
+      <div class="pointer"></div>
+      <div class="hub">
+        <!-- Official Mercedes-Benz star -->
+        <svg viewBox="0 0 38 38" xmlns="http://www.w3.org/2000/svg">
+          <path fill="#1a1a1a" d="M35.4544465,9.4999895c-1.6675854-2.8883456-4.0661211-5.2869461-6.9544707-6.9545288C25.6116245.8778901,22.3351164-.0000113,18.9999602-.0000113s-6.6116643.8779014-9.500013,2.5454718c-2.8883495,1.6675829-5.2868861,4.0661834-6.9544579,6.954529C.8779042,12.3883351.0000007,15.6648388.0000007,18.9999905s.8779036,6.6116553,2.5454887,9.4999991c1.6675717,2.8883438,4.0661088,5.2869456,6.9544579,6.9545142,2.8883495,1.6675832,6.1648567,2.545485,9.500013,2.545485s6.6116643-.8779018,9.5000139-2.545485c2.8883514-1.6675685,5.2868871-4.0661704,6.9544725-6.954516,1.6676402-2.8883456,2.5455542-6.1648474,2.5455542-9.5000009s-.8779834-6.6116553-2.5455542-9.4999973ZM1.8999571,18.9999905c0-3.0017169.7901239-5.9505479,2.290984-8.5499634,1.5007929-2.5995498,3.6594907-4.7581912,6.259044-6.2591026,2.444813-1.4115102,5.19865-2.1943806,8.0147432-2.2824819l-2.1816223,15.5229389L3.9306169,27.082194c-1.331722-2.4829084-2.0306614-5.2591831-2.0306598-8.0822035ZM27.550001,33.8090561c-2.5995542,1.5007927-5.5483874,2.2908612-8.5500426,2.2908612s-5.9504747-.7900685-8.5499741-2.2908612c-2.444813-1.4115093-4.499631-3.4050629-5.984056-5.7997344l14.5340301-5.872124,14.5341123,5.872124c-1.4844378,2.3946733-3.5392558,4.3882251-5.9840697,5.7997344ZM34.0693811,27.0821921l-12.3525704-9.6508126-2.1816059-15.5229372c2.8161461.0881012,5.569986.8709716,8.014798,2.282482,2.5994866,1.5009119,4.7581991,3.6595529,6.2589902,6.2591026,1.5008605,2.5994155,2.2909849,5.5483799,2.2909849,8.5499634,0,2.8230204-.6989524,5.5992951-2.0305968,8.0822017Z"/>
+        </svg>
+      </div>
+    </div>
+
+    <div class="winner-banner" id="winner-banner">
+      <div class="label">Selected Participant</div>
+      <div class="name" id="winner-name">—</div>
+    </div>
+
+    <button class="spin-btn" id="spin-btn" disabled>Spin the Wheel</button>
+
+    <!-- All done overlay (replaces wheel section content) -->
+    <div class="all-done" id="all-done">
+      <div class="star-big">
+        <svg viewBox="0 0 38 38" xmlns="http://www.w3.org/2000/svg">
+          <path fill="#ffffff" d="M35.4544465,9.4999895c-1.6675854-2.8883456-4.0661211-5.2869461-6.9544707-6.9545288C25.6116245.8778901,22.3351164-.0000113,18.9999602-.0000113s-6.6116643.8779014-9.500013,2.5454718c-2.8883495,1.6675829-5.2868861,4.0661834-6.9544579,6.954529C.8779042,12.3883351.0000007,15.6648388.0000007,18.9999905s.8779036,6.6116553,2.5454887,9.4999991c1.6675717,2.8883438,4.0661088,5.2869456,6.9544579,6.9545142,2.8883495,1.6675832,6.1648567,2.545485,9.500013,2.545485s6.6116643-.8779018,9.5000139-2.545485c2.8883514-1.6675685,5.2868871-4.0661704,6.9544725-6.954516,1.6676402-2.8883456,2.5455542-6.1648474,2.5455542-9.5000009s-.8779834-6.6116553-2.5455542-9.4999973ZM1.8999571,18.9999905c0-3.0017169.7901239-5.9505479,2.290984-8.5499634,1.5007929-2.5995498,3.6594907-4.7581912,6.259044-6.2591026,2.444813-1.4115102,5.19865-2.1943806,8.0147432-2.2824819l-2.1816223,15.5229389L3.9306169,27.082194c-1.331722-2.4829084-2.0306614-5.2591831-2.0306598-8.0822035ZM27.550001,33.8090561c-2.5995542,1.5007927-5.5483874,2.2908612-8.5500426,2.2908612s-5.9504747-.7900685-8.5499741-2.2908612c-2.444813-1.4115093-4.499631-3.4050629-5.984056-5.7997344l14.5340301-5.872124,14.5341123,5.872124c-1.4844378,2.3946733-3.5392558,4.3882251-5.9840697,5.7997344ZM34.0693811,27.0821921l-12.3525704-9.6508126-2.1816059-15.5229372c2.8161461.0881012,5.569986.8709716,8.014798,2.282482,2.5994866,1.5009119,4.7581991,3.6595529,6.2589902,6.2591026,1.5008605,2.5994155,2.2909849,5.5483799,2.2909849,8.5499634,0,2.8230204-.6989524,5.5992951-2.0305968,8.0822017Z"/>
+        </svg>
+      </div>
+      <h2>Session Complete</h2>
+      <p>All participants have been selected.</p>
+      <button class="restart-btn" id="restart-btn">Start New Session</button>
+    </div>
+  </div>
+
+  <!-- Panel -->
+  <div class="panel">
+    <h2>Participants</h2>
+
+    <div class="add-form">
+      <input type="text" id="name-input" placeholder="Enter a name…" maxlength="30" autocomplete="off"/>
+      <button id="add-btn" title="Add name">+</button>
+    </div>
+
+    <p class="name-count">
+      <span id="count">0</span> / 20 participants added
+    </p>
+
+    <ul class="name-list" id="name-list">
+      <li class="empty-msg" id="empty-msg" style="border:none;background:none;">No participants yet — add names above</li>
+    </ul>
+
+    <button class="clear-btn" id="clear-btn">Clear All</button>
+  </div>
+
+</main>
+
+<script>
+  // ────────────────────────────────────────────────
+  // State
+  // ────────────────────────────────────────────────
+  const MAX = 20;
+
+  // Mercedes-Benz brand palette — Deep Black base, Pure Blue accents
+  const SEGMENT_COLORS = [
+    '#000000', '#0078D6', '#111111', '#005aaa',
+    '#0d0d0d', '#006ec4', '#000000', '#0078D6',
+    '#111111', '#004f99', '#0d0d0d', '#0078D6',
+    '#000000', '#005aaa', '#111111', '#006ec4',
+    '#0d0d0d', '#0078D6', '#000000', '#004f99',
+  ];
+
+  const TEXT_COLORS = [
+    '#ffffff', '#ffffff', '#ffffff', '#ffffff',
+    '#ffffff', '#ffffff', '#ffffff', '#ffffff',
+    '#ffffff', '#ffffff', '#ffffff', '#ffffff',
+    '#ffffff', '#ffffff', '#ffffff', '#ffffff',
+    '#ffffff', '#ffffff', '#ffffff', '#ffffff',
+  ];
+
+  let names = [];           // current names on wheel
+  let currentWinner = null; // name waiting to be removed
+  let isSpinning = false;
+  let currentAngle = 0;     // radians, cumulative rotation
+  let results = [];         // ordered list of winners
+  let spinMode = false;     // true once first spin has happened
+
+  // ────────────────────────────────────────────────
+  // DOM refs
+  // ────────────────────────────────────────────────
+  const canvas       = document.getElementById('wheel-canvas');
+  const ctx          = canvas.getContext('2d');
+  const spinBtn      = document.getElementById('spin-btn');
+  const addBtn       = document.getElementById('add-btn');
+  const nameInput    = document.getElementById('name-input');
+  const nameList     = document.getElementById('name-list');
+  const emptyMsg     = document.getElementById('empty-msg');
+  const countEl      = document.getElementById('count');
+  const clearBtn     = document.getElementById('clear-btn');
+  const winnerBanner = document.getElementById('winner-banner');
+  const winnerName   = document.getElementById('winner-name');
+  const allDone      = document.getElementById('all-done');
+  const wheelWrap    = document.getElementById('wheel-wrap');
+  const restartBtn   = document.getElementById('restart-btn');
+  const mainLayout   = document.getElementById('main-layout');
+  const resultsList  = document.getElementById('results-list');
+
+  // Resize canvas for hi-DPI
+  (function setupCanvas() {
+    const size = 480;
+    const dpr  = window.devicePixelRatio || 1;
+    canvas.width  = size * dpr;
+    canvas.height = size * dpr;
+    // CSS sizing handled by width:100%;height:100% on the element
+    ctx.scale(dpr, dpr);
+  })();
+
+  const CANVAS_SIZE = 480;
+  const cx = CANVAS_SIZE / 2;
+  const cy = CANVAS_SIZE / 2;
+  const R  = CANVAS_SIZE / 2 - 6;
+
+  // ────────────────────────────────────────────────
+  // Draw wheel
+  // ────────────────────────────────────────────────
+  function drawWheel(rotationAngle) {
+    ctx.clearRect(0, 0, CANVAS_SIZE, CANVAS_SIZE);
+
+    if (names.length === 0) {
+      // Empty state — plain dark circle, no text
+      ctx.beginPath();
+      ctx.arc(cx, cy, R, 0, Math.PI * 2);
+      ctx.fillStyle = '#1a1a1a';
+      ctx.fill();
+      ctx.strokeStyle = '#333';
+      ctx.lineWidth = 3;
+      ctx.stroke();
+      return;
+    }
+
+    const n     = names.length;
+    const slice = (Math.PI * 2) / n;
+
+    for (let i = 0; i < n; i++) {
+      const startAngle = rotationAngle + i * slice;
+      const endAngle   = startAngle + slice;
+      const midAngle   = startAngle + slice / 2;
+
+      // Segment
+      ctx.beginPath();
+      ctx.moveTo(cx, cy);
+      ctx.arc(cx, cy, R, startAngle, endAngle);
+      ctx.closePath();
+      ctx.fillStyle = SEGMENT_COLORS[i % SEGMENT_COLORS.length];
+      ctx.fill();
+
+      // Thin separator line with silver tint
+      ctx.beginPath();
+      ctx.moveTo(cx, cy);
+      ctx.arc(cx, cy, R, startAngle, endAngle);
+      ctx.closePath();
+      ctx.strokeStyle = 'rgba(0,141,252,0.3)';
+      ctx.lineWidth = 1.5;
+      ctx.stroke();
+
+      // Label
+      ctx.save();
+      ctx.translate(cx, cy);
+      ctx.rotate(midAngle);
+
+      const textRadius = R * 0.62;
+      ctx.textAlign = 'right';
+      ctx.textBaseline = 'middle';
+
+      const fontSize = n <= 6 ? 15 : n <= 10 ? 13 : n <= 15 ? 11 : 10;
+      ctx.font = `500 ${fontSize}px Inter, sans-serif`;
+      ctx.fillStyle = TEXT_COLORS[i % TEXT_COLORS.length];
+
+      // Clip name to fit
+      let label = names[i];
+      if (ctx.measureText(label).width > textRadius * 0.88) {
+        while (ctx.measureText(label + '…').width > textRadius * 0.88 && label.length > 1) {
+          label = label.slice(0, -1);
+        }
+        label += '…';
+      }
+      ctx.fillText(label, textRadius, 0);
+      ctx.restore();
+    }
+
+    // Outer ring
+    ctx.beginPath();
+    ctx.arc(cx, cy, R, 0, Math.PI * 2);
+    ctx.strokeStyle = 'rgba(255,255,255,0.4)';
+    ctx.lineWidth = 3;
+    ctx.stroke();
+
+    // Inner shadow ring
+    const grad = ctx.createRadialGradient(cx, cy, R * 0.6, cx, cy, R);
+    grad.addColorStop(0,   'rgba(0,0,0,0)');
+    grad.addColorStop(1,   'rgba(0,0,0,0.35)');
+    ctx.beginPath();
+    ctx.arc(cx, cy, R, 0, Math.PI * 2);
+    ctx.fillStyle = grad;
+    ctx.fill();
+  }
+
+  // ────────────────────────────────────────────────
+  // Spin mode (panel → results list)
+  // ────────────────────────────────────────────────
+  function enterSpinMode() {
+    if (spinMode) return;
+    spinMode = true;
+    mainLayout.classList.add('spinning');
+  }
+
+  function exitSpinMode() {
+    spinMode = false;
+    results = [];
+    mainLayout.classList.remove('spinning');
+    // Rebuild results panel to empty state
+    const rl = document.getElementById('results-list');
+    rl.innerHTML = '';
+    const li = document.createElement('li');
+    li.className = 'results-empty';
+    li.textContent = 'No one selected yet';
+    rl.appendChild(li);
+  }
+
+  function updateResultsList() {
+    const rl = document.getElementById('results-list');
+    if (!rl) return;
+    rl.innerHTML = '';
+    if (results.length === 0) {
+      const li = document.createElement('li');
+      li.className = 'results-empty';
+      li.textContent = 'No one selected yet';
+      rl.appendChild(li);
+      return;
+    }
+    results.forEach((name, i) => {
+      const li  = document.createElement('li');
+      const pos = document.createElement('span');
+      pos.className = 'pos';
+      pos.textContent = (i + 1) + '.';
+      const nm = document.createElement('span');
+      nm.className = 'res-name';
+      nm.textContent = name;
+      li.appendChild(pos);
+      li.appendChild(nm);
+      rl.appendChild(li);
+    });
+  }
+
+  // ────────────────────────────────────────────────
+  // Spinning animation
+  // ────────────────────────────────────────────────
+  function spin() {
+    if (isSpinning || names.length === 0) return;
+
+    // Enter spin mode on the very first spin
+    enterSpinMode();
+
+    // If there's a previous winner waiting, remove it first
+    if (currentWinner !== null) {
+      removeName(currentWinner);
+      currentWinner = null;
+      if (names.length === 0) {
+        showAllDone();
+        return;
+      }
+    }
+
+    isSpinning = true;
+    spinBtn.disabled = true;
+    winnerBanner.classList.remove('show');
+
+    const n = names.length;
+    // Pick a winning index randomly
+    const winnerIndex = Math.floor(Math.random() * n);
+
+    // We want the pointer (at angle=0 in canvas space, pointing from right)
+    // to point at the centre of winnerIndex's segment after spin.
+    // The pointer is at the RIGHT side (3 o'clock = angle 0).
+    // Segment i centre = currentAngle + i*(2π/n) + (2π/n)/2
+    // We want that to equal 0 (mod 2π), so we need to rotate by:
+    const slice      = (Math.PI * 2) / n;
+    const segCentre  = winnerIndex * slice + slice / 2;
+    // Extra full spins for drama (5–8 full rotations)
+    const extraSpins = (5 + Math.floor(Math.random() * 4)) * Math.PI * 2;
+    // Target angle offset from current
+    const targetOffset = extraSpins + (Math.PI * 2 - (currentAngle + segCentre) % (Math.PI * 2)) % (Math.PI * 2);
+
+    const duration  = 4000 + Math.random() * 1500; // 4–5.5 s
+    const startTime = performance.now();
+    const startAngle = currentAngle;
+
+    function easeOut(t) {
+      // Cubic ease-out with a little overshoot bounce
+      return 1 - Math.pow(1 - t, 3);
+    }
+
+    function frame(now) {
+      const elapsed = now - startTime;
+      const t       = Math.min(elapsed / duration, 1);
+      const eased   = easeOut(t);
+
+      currentAngle = startAngle + targetOffset * eased;
+      drawWheel(currentAngle);
+
+      if (t < 1) {
+        requestAnimationFrame(frame);
+      } else {
+        // Snap to exact final position
+        currentAngle = startAngle + targetOffset;
+        drawWheel(currentAngle);
+        isSpinning = false;
+
+        // Show winner
+        currentWinner = names[winnerIndex];
+        results.push(currentWinner);
+        updateResultsList();
+        winnerName.textContent = currentWinner;
+        winnerBanner.classList.add('show');
+        launchConfetti();
+
+        spinBtn.textContent = names.length > 1
+          ? 'Remove & Spin Again'
+          : 'Remove & Finish';
+        spinBtn.disabled = false;
+      }
+    }
+
+    requestAnimationFrame(frame);
+  }
+
+  // ────────────────────────────────────────────────
+  // Name management
+  // ────────────────────────────────────────────────
+  function addName(n) {
+    n = n.trim();
+    if (!n || names.length >= MAX) return;
+    if (names.includes(n)) {
+      nameInput.style.borderColor = '#aa4444';
+      setTimeout(() => nameInput.style.borderColor = '', 1200);
+      nameInput.placeholder = 'Name already added!';
+      setTimeout(() => nameInput.placeholder = 'Enter a name…', 2000);
+      return;
+    }
+    names.push(n);
+    nameInput.value = '';
+    updateUI();
+  }
+
+  function removeName(n) {
+    const idx = names.indexOf(n);
+    if (idx !== -1) names.splice(idx, 1);
+    updateUI();
+  }
+
+  function removeNameByIndex(i) {
+    names.splice(i, 1);
+    if (currentWinner && !names.includes(currentWinner)) currentWinner = null;
+    updateUI();
+  }
+
+  function clearAll() {
+    names = [];
+    currentWinner = null;
+    results = [];
+    spinMode = false;
+    mainLayout.classList.remove('spinning');
+    winnerBanner.classList.remove('show');
+    spinBtn.textContent = 'Spin the Wheel';
+    // reset results panel text
+    const rl = document.getElementById('results-list');
+    if (rl) {
+      rl.innerHTML = '';
+      const li = document.createElement('li');
+      li.className = 'results-empty';
+      li.textContent = 'No one selected yet';
+      rl.appendChild(li);
+    }
+    updateUI();
+  }
+
+  // ────────────────────────────────────────────────
+  // UI updates
+  // ────────────────────────────────────────────────
+  function updateUI() {
+    countEl.textContent = names.length;
+    addBtn.disabled     = names.length >= MAX;
+    spinBtn.disabled    = names.length === 0 || isSpinning;
+
+    if (!currentWinner) {
+      spinBtn.textContent = 'Spin the Wheel';
+    }
+
+    // Rebuild list
+    nameList.innerHTML = '';
+    if (names.length === 0) {
+      const li = document.createElement('li');
+      li.id = 'empty-msg';
+      li.style.cssText = 'border:none;background:none;';
+      li.className = 'empty-msg';
+      li.textContent = 'No participants yet — add names above';
+      nameList.appendChild(li);
+    } else {
+      names.forEach((name, i) => {
+        const li   = document.createElement('li');
+        const dot  = document.createElement('span');
+        dot.className = 'dot';
+        dot.style.background = SEGMENT_COLORS[i % SEGMENT_COLORS.length];
+        dot.style.border = '1px solid rgba(192,192,192,0.3)';
+
+        const text = document.createElement('span');
+        text.className = 'text';
+        text.textContent = name;
+
+        const del = document.createElement('button');
+        del.className = 'remove-btn';
+        del.textContent = '×';
+        del.title = 'Remove ' + name;
+        del.onclick = () => removeNameByIndex(i);
+
+        li.appendChild(dot);
+        li.appendChild(text);
+        li.appendChild(del);
+        nameList.appendChild(li);
+      });
+    }
+
+    drawWheel(currentAngle);
+  }
+
+  // ────────────────────────────────────────────────
+  // All done
+  // ────────────────────────────────────────────────
+  function showAllDone() {
+    winnerBanner.classList.remove('show');
+    canvas.style.display      = 'none';
+    document.querySelector('.pointer').style.display = 'none';
+    document.querySelector('.hub').style.display     = 'none';
+    spinBtn.style.display     = 'none';
+    allDone.classList.add('show');
+    launchConfetti(120);
+  }
+
+  restartBtn.addEventListener('click', () => {
+    canvas.style.display      = '';
+    document.querySelector('.pointer').style.display = '';
+    document.querySelector('.hub').style.display     = '';
+    spinBtn.style.display     = '';
+    allDone.classList.remove('show');
+    exitSpinMode();
+    clearAll();
+  });
+
+  // ────────────────────────────────────────────────
+  // Confetti
+  // ────────────────────────────────────────────────
+  function launchConfetti(count = 60) {
+    const container = document.getElementById('confetti-container');
+    container.innerHTML = '';
+    const colors = ['#008DFC','#0078D6','#ffffff','#1a9aff','#005aaa','#ffffff99'];
+    for (let i = 0; i < count; i++) {
+      const el = document.createElement('div');
+      el.className = 'confetti-piece';
+      el.style.left       = Math.random() * 100 + 'vw';
+      el.style.top        = '-10px';
+      el.style.background = colors[Math.floor(Math.random() * colors.length)];
+      el.style.width      = (6 + Math.random() * 8) + 'px';
+      el.style.height     = (6 + Math.random() * 8) + 'px';
+      el.style.borderRadius = Math.random() > 0.5 ? '50%' : '0';
+      el.style.animationDelay    = Math.random() * 1.5 + 's';
+      el.style.animationDuration = (2.5 + Math.random() * 1.5) + 's';
+      container.appendChild(el);
+    }
+    setTimeout(() => container.innerHTML = '', 5000);
+  }
+
+  // ────────────────────────────────────────────────
+  // Events
+  // ────────────────────────────────────────────────
+  spinBtn.addEventListener('click', spin);
+
+  addBtn.addEventListener('click', () => addName(nameInput.value));
+
+  nameInput.addEventListener('keydown', e => {
+    if (e.key === 'Enter') addName(nameInput.value);
+  });
+
+  clearBtn.addEventListener('click', clearAll);
+
+  // ────────────────────────────────────────────────
+  // Init
+  // ────────────────────────────────────────────────
+  updateUI();
+</script>
+</body>
+</html>
