@@ -265,6 +265,40 @@
     .add-form input::placeholder { color: var(--mb-grey-4); }
     .add-form input:focus { border-color: var(--mb-blue); }
 
+    /* Paste hint under the input */
+    .paste-hint {
+      font-size: 0.68rem;
+      color: var(--mb-grey-4);
+      letter-spacing: 0.06em;
+      margin-top: -14px;
+    }
+
+    /* Toast notification */
+    .toast {
+      position: fixed;
+      bottom: 32px;
+      left: 50%;
+      transform: translateX(-50%) translateY(12px);
+      background: var(--mb-blue);
+      color: var(--mb-white);
+      font-family: 'Inter', sans-serif;
+      font-size: 0.8rem;
+      font-weight: 600;
+      letter-spacing: 0.1em;
+      padding: 12px 28px;
+      border-radius: 4px;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.25s ease, transform 0.25s ease;
+      z-index: 200;
+      white-space: nowrap;
+    }
+
+    .toast.show {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0);
+    }
+
     .add-form button {
       background: var(--mb-blue);
       border: none;
@@ -571,6 +605,9 @@
   </div>
 </header>
 
+<!-- ── Toast ── -->
+<div class="toast" id="toast"></div>
+
 <!-- ── Confetti layer ── -->
 <div class="confetti-container" id="confetti-container"></div>
 
@@ -626,6 +663,7 @@
       <input type="text" id="name-input" placeholder="Enter a name…" maxlength="30" autocomplete="off"/>
       <button id="add-btn" title="Add name">+</button>
     </div>
+    <p class="paste-hint">Tip: paste a copied Excel column to add multiple names at once</p>
 
     <p class="name-count">
       <span id="count">0</span> / 20 participants added
@@ -1065,6 +1103,18 @@
   }
 
   // ────────────────────────────────────────────────
+  // Toast
+  // ────────────────────────────────────────────────
+  let toastTimer = null;
+  function showToast(msg) {
+    const t = document.getElementById('toast');
+    t.textContent = msg;
+    t.classList.add('show');
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => t.classList.remove('show'), 3000);
+  }
+
+  // ────────────────────────────────────────────────
   // Events
   // ────────────────────────────────────────────────
   spinBtn.addEventListener('click', spin);
@@ -1073,6 +1123,39 @@
 
   nameInput.addEventListener('keydown', e => {
     if (e.key === 'Enter') addName(nameInput.value);
+  });
+
+  // Paste from Excel — splits on newlines and/or tabs
+  nameInput.addEventListener('paste', e => {
+    const text = (e.clipboardData || window.clipboardData).getData('text');
+    // If it looks like multiple values (contains newline or tab), bulk-add
+    if (text.includes('\n') || text.includes('\t') || text.includes('\r')) {
+      e.preventDefault();
+      const incoming = text
+        .split(/[\r\n\t]+/)
+        .map(s => s.trim())
+        .filter(s => s.length > 0);
+
+      let added = 0, skipped = 0;
+      for (const name of incoming) {
+        if (names.length >= MAX) { skipped += incoming.length - added - skipped; break; }
+        if (names.includes(name)) { skipped++; continue; }
+        if (name.length > 30) { skipped++; continue; }
+        names.push(name);
+        added++;
+      }
+      nameInput.value = '';
+      updateUI();
+
+      if (added > 0 && skipped === 0) {
+        showToast(`✓ ${added} name${added > 1 ? 's' : ''} added`);
+      } else if (added > 0) {
+        showToast(`✓ ${added} added — ${skipped} skipped (duplicate / over limit)`);
+      } else {
+        showToast(`No new names added (duplicates or limit reached)`);
+      }
+    }
+    // Single value — let the default paste handle it normally
   });
 
   clearBtn.addEventListener('click', clearAll);
