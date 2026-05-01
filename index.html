@@ -96,7 +96,7 @@
       overflow: hidden;
       display: flex;
       flex-direction: column;
-      align-items: center;
+      align-items: stretch;
     }
 
     /* ── Header ── */
@@ -143,16 +143,17 @@
       gap: 32px;
       justify-content: center;
       align-items: center;
-      padding: 20px 24px;
+      padding: 20px 40px;
       width: 100%;
-      max-width: 1400px;
       flex: 1;
       min-height: 0;
+      box-sizing: border-box;
     }
 
+    /* Spin mode: results panel left + wheel + collapsed participants panel.
+       Use a fixed left offset so the wheel stays visually centred. */
     main.spinning {
-      justify-content: flex-start;
-      padding-left: 40px;
+      justify-content: center;
     }
 
     /* ── Wheel section ── */
