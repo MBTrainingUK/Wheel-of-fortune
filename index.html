@@ -5,7 +5,70 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Mercedes-Benz Team Randomiser</title>
   <style>
-    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+    /* ── MB Corpo Web Fonts ── */
+    @font-face {
+      font-family: 'MBCorpoSText';
+      font-weight: 300;
+      font-style: normal;
+      src: url('MBCorpo_web_fonts/MBCorpoSText/MBCorpoSText-Light-Web.woff2') format('woff2'),
+           url('MBCorpo_web_fonts/MBCorpoSText/MBCorpoSText-Light-Web.woff')  format('woff');
+    }
+    @font-face {
+      font-family: 'MBCorpoSText';
+      font-weight: 400;
+      font-style: normal;
+      src: url('MBCorpo_web_fonts/MBCorpoSText/MBCorpoSText-Regular-Web.woff2') format('woff2'),
+           url('MBCorpo_web_fonts/MBCorpoSText/MBCorpoSText-Regular-Web.woff')  format('woff');
+    }
+    @font-face {
+      font-family: 'MBCorpoSText';
+      font-weight: 700;
+      font-style: normal;
+      src: url('MBCorpo_web_fonts/MBCorpoSText/MBCorpoSText-Bold-Web.woff2') format('woff2'),
+           url('MBCorpo_web_fonts/MBCorpoSText/MBCorpoSText-Bold-Web.woff')  format('woff');
+    }
+    @font-face {
+      font-family: 'MBCorpoSTextCond';
+      font-weight: 300;
+      font-style: normal;
+      src: url('MBCorpo_web_fonts/MBCorpoSTextCond/MBCorpoSText-CondLight-Web.woff2') format('woff2'),
+           url('MBCorpo_web_fonts/MBCorpoSTextCond/MBCorpoSText-CondLight-Web.woff')  format('woff');
+    }
+    @font-face {
+      font-family: 'MBCorpoSTextCond';
+      font-weight: 400;
+      font-style: normal;
+      src: url('MBCorpo_web_fonts/MBCorpoSTextCond/MBCorpoSText-CondRegular-Web.woff2') format('woff2'),
+           url('MBCorpo_web_fonts/MBCorpoSTextCond/MBCorpoSText-CondRegular-Web.woff')  format('woff');
+    }
+    @font-face {
+      font-family: 'MBCorpoSTextCond';
+      font-weight: 700;
+      font-style: normal;
+      src: url('MBCorpo_web_fonts/MBCorpoSTextCond/MBCorpoSText-CondBold-Web.woff2') format('woff2'),
+           url('MBCorpo_web_fonts/MBCorpoSTextCond/MBCorpoSText-CondBold-Web.woff')  format('woff');
+    }
+    @font-face {
+      font-family: 'MBCorpoSTitle';
+      font-weight: 300;
+      font-style: normal;
+      src: url('MBCorpo_web_fonts/MBCorpoSTitle/MBCorpoSTitle-Light-Web.woff2') format('woff2'),
+           url('MBCorpo_web_fonts/MBCorpoSTitle/MBCorpoSTitle-Light-Web.woff')  format('woff');
+    }
+    @font-face {
+      font-family: 'MBCorpoSTitle';
+      font-weight: 400;
+      font-style: normal;
+      src: url('MBCorpo_web_fonts/MBCorpoSTitle/MBCorpoSTitle-Regular-Web.woff2') format('woff2'),
+           url('MBCorpo_web_fonts/MBCorpoSTitle/MBCorpoSTitle-Regular-Web.woff')  format('woff');
+    }
+    @font-face {
+      font-family: 'MBCorpoSTitle';
+      font-weight: 700;
+      font-style: normal;
+      src: url('MBCorpo_web_fonts/MBCorpoSTitle/MBCorpoSTitle-Bold-Web.woff2') format('woff2'),
+           url('MBCorpo_web_fonts/MBCorpoSTitle/MBCorpoSTitle-Bold-Web.woff')  format('woff');
+    }
 
     :root {
       --mb-black:       #000000;
@@ -28,7 +91,7 @@
     body {
       background: var(--mb-black);
       color: var(--mb-white);
-      font-family: 'Inter', sans-serif;
+      font-family: 'MBCorpoSText', sans-serif;
       height: 100vh;
       overflow: hidden;
       display: flex;
@@ -56,10 +119,11 @@
 
     .header-text h1 {
       font-size: 1.35rem;
-      font-weight: 600;
+      font-weight: 700;
       letter-spacing: 0.12em;
       text-transform: uppercase;
       color: var(--mb-white);
+      font-family: 'MBCorpoSTitle', sans-serif;
     }
 
     .header-text p {
@@ -69,6 +133,7 @@
       text-transform: uppercase;
       color: var(--mb-grey-5);
       margin-top: 2px;
+      font-family: 'MBCorpoSText', sans-serif;
     }
 
     /* ── Main layout ── */
@@ -185,6 +250,7 @@
       font-weight: 700;
       color: var(--mb-white);
       letter-spacing: 0.04em;
+      font-family: 'MBCorpoSTitle', sans-serif;
     }
 
     /* ── Spin button ── */
@@ -192,7 +258,7 @@
       background: var(--mb-blue);
       border: none;
       color: var(--mb-white);
-      font-family: 'Inter', sans-serif;
+      font-family: 'MBCorpoSText', sans-serif;
       font-size: 0.85rem;
       font-weight: 600;
       letter-spacing: 0.2em;
@@ -263,7 +329,7 @@
       background: var(--mb-black);
       border: 1px solid var(--mb-grey-3);
       color: var(--mb-white);
-      font-family: 'Inter', sans-serif;
+      font-family: 'MBCorpoSText', sans-serif;
       font-size: 0.875rem;
       padding: 10px 14px;
       border-radius: 4px;
@@ -290,7 +356,7 @@
       transform: translateX(-50%) translateY(12px);
       background: var(--mb-blue);
       color: var(--mb-white);
-      font-family: 'Inter', sans-serif;
+      font-family: 'MBCorpoSText', sans-serif;
       font-size: 0.8rem;
       font-weight: 600;
       letter-spacing: 0.1em;
@@ -312,7 +378,7 @@
       background: var(--mb-blue);
       border: none;
       color: var(--mb-white);
-      font-family: 'Inter', sans-serif;
+      font-family: 'MBCorpoSText', sans-serif;
       font-size: 1.2rem;
       font-weight: 700;
       width: 40px;
@@ -406,7 +472,7 @@
       background: none;
       border: 1px solid var(--mb-grey-3);
       color: var(--mb-grey-4);
-      font-family: 'Inter', sans-serif;
+      font-family: 'MBCorpoSText', sans-serif;
       font-size: 0.72rem;
       letter-spacing: 0.15em;
       text-transform: uppercase;
@@ -460,6 +526,7 @@
       font-weight: 700;
       letter-spacing: 0.1em;
       text-transform: uppercase;
+      font-family: 'MBCorpoSTitle', sans-serif;
     }
 
     .all-done p {
@@ -472,7 +539,7 @@
       background: var(--mb-blue);
       border: none;
       color: var(--mb-white);
-      font-family: 'Inter', sans-serif;
+      font-family: 'MBCorpoSText', sans-serif;
       font-size: 0.8rem;
       font-weight: 700;
       letter-spacing: 0.18em;
@@ -806,7 +873,7 @@
       ctx.textBaseline = 'middle';
 
       const fontSize = n <= 6 ? 15 : n <= 10 ? 13 : n <= 15 ? 11 : 10;
-      ctx.font = `500 ${fontSize}px Inter, sans-serif`;
+      ctx.font = `400 ${fontSize}px MBCorpoSTextCond, sans-serif`;
       ctx.fillStyle = TEXT_COLORS[i % TEXT_COLORS.length];
 
       // Clip name to fit
