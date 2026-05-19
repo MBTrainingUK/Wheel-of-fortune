@@ -303,15 +303,15 @@
       border: 1px solid var(--mb-grey-3);
       border-radius: 4px;
       padding: 24px;
-      width: 320px;
+      width: 400px;
       display: flex;
       flex-direction: column;
       gap: 16px;
       transition: width 0.5s ease, opacity 0.35s ease, padding 0.5s ease;
-      overflow: hidden;
+      overflow-x: visible;
+      overflow-y: auto;
       flex-shrink: 0;
       max-height: calc(100vh - 110px);
-      overflow-y: auto;
     }
 
     .panel h2 {
@@ -327,6 +327,8 @@
     .add-form {
       display: flex;
       gap: 8px;
+      flex-wrap: nowrap;
+      align-items: stretch;
     }
 
     .add-form input {
