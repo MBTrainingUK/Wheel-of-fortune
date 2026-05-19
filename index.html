@@ -386,8 +386,9 @@
       font-family: 'MBCorpoSText', sans-serif;
       font-size: 1.2rem;
       font-weight: 700;
-      width: 40px;
-      height: 40px;
+      width: 2.8em;
+      height: auto;
+      aspect-ratio: 1;
       border-radius: 4px;
       cursor: pointer;
       transition: background 0.2s;
@@ -877,7 +878,7 @@
       ctx.textAlign = 'right';
       ctx.textBaseline = 'middle';
 
-      const fontSize = n <= 6 ? 15 : n <= 10 ? 13 : n <= 15 ? 11 : 10;
+      const fontSize = n <= 6 ? 30 : n <= 10 ? 26 : n <= 15 ? 22 : 20;
       ctx.font = `400 ${fontSize}px MBCorpoSTextCond, sans-serif`;
       ctx.fillStyle = TEXT_COLORS[i % TEXT_COLORS.length];
 
