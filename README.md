@@ -2,9 +2,11 @@
 
 A Mercedes-Benz branded spin-the-wheel name picker for training sessions. Use it as an icebreaker or to pick who goes next, so the choice is fair and random.
 
+**Open it here: https://mbtraininguk.github.io/Wheel-of-fortune/**
+
 ## How to use it
 
-1. Open `index.html` in any web browser (double-click it). Nothing needs installing.
+1. Open the link above in any web browser. Nothing needs installing. To use it offline, download the repo and double-click `index.html`.
 2. Add up to **20 participant names** in the panel on the right.
 3. Press **Spin the Wheel**. The wheel spins and lands on a random name, which appears in a banner under the wheel.
 4. Press **Remove & Spin Again**. That person comes off the wheel and it spins again with the names left.
