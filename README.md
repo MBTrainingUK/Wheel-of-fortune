@@ -25,3 +25,7 @@ A Mercedes-Benz branded spin-the-wheel name picker for training sessions. Use it
 ## Branding
 
 Built to the Mercedes-Benz digital brand guidelines: black background, white text, MB blue (`#008DFC`) for buttons and highlights, and the official star logo.
+
+## Collaborators
+
+- Lucie
